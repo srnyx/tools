@@ -34,9 +34,6 @@ on:
         default: build/libs/*.jar
         description: The location of the built files to upload
     secrets:
-      GITHUB_TOKEN:
-        required: false
-        description: GitHub token
       MODRINTH_TOKEN:
         required: false
         description: Modrinth token
