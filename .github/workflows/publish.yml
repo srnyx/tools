@@ -1,0 +1,77 @@
+name: Publish
+on:
+  workflow_call:
+    inputs:
+      java:
+        type: string
+        required: false
+        default: 8
+        description: The Java version that should be used to build the project
+      modrinth:
+        type: string
+        required: false
+        description: The ID of the project on Modrinth
+      curseforge:
+        type: string
+        required: false
+        description: The ID of the project on CurseForge
+      versions:
+        type: string
+        required: false
+        default: ">=1.8.8"
+        description: The supported Minecraft versions of the project
+      loaders:
+        type: string
+        required: false
+        default: |
+          purpur
+          paper
+          spigot
+        description: The supported loaders of the project
+      files:
+        type: string
+        required: false
+        default: build/libs/*.jar
+        description: The location of the built files to upload
+    secrets:
+      GITHUB_TOKEN:
+        required: false
+        description: GitHub token
+      MODRINTH_TOKEN:
+        required: false
+        description: Modrinth token
+      CURSEFORGE_TOKEN:
+        required: false
+        description: CurseForge token
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: "actions/checkout@v3.5.3"
+      - uses: "gradle/wrapper-validation-action@v1.0.6"
+      - name: Set up JDK
+        uses: "actions/setup-java@v3.11.0"
+        with:
+          distribution: temurin
+          java-version: ${{ inputs.java }}
+          cache: gradle
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build jar with Gradle
+        run: ./gradlew build
+      - name: Publish artifacts
+        uses: "Kir-Antipov/mc-publish@v3.3"
+        with:
+          game-version-filter: releases
+          changelog: ${{ github.event.release.html_url }}
+          
+          modrinth-id:  ${{ inputs.modrinth }}
+          curseforge-id:  ${{ inputs.curseforge }}
+          game-versions:  ${{ inputs.versions }}
+          loaders:  ${{ inputs.loaders }}
+          files: ${{ inputs.files }}
+          
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
