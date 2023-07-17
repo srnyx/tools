@@ -62,6 +62,7 @@ jobs:
         with:
           game-version-filter: releases
           changelog: ${{ github.event.release.html_url }}
+          github-changelog: ${{ github.event.release.body }}
           
           modrinth-id:  ${{ inputs.modrinth }}
           curseforge-id:  ${{ inputs.curseforge }}
