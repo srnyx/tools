@@ -20,6 +20,11 @@ on:
         required: false
         default: build/libs
         description: The path to the built files to be uploaded as artifacts
+      task:
+        type: string
+        required: false
+        default: "build"
+        description: The Gradle task to run to build the project
 
 jobs:
   build:
@@ -37,7 +42,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build jar with Gradle
-        run: ./gradlew build
+        run: ./gradlew ${{ inputs.task }}
       - name: Upload artifacts
         uses: "actions/upload-artifact@v4.3.1"
         with:
