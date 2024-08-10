@@ -54,10 +54,10 @@ on:
         description: CurseForge token
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: "./.github/workflows/just_build.yml"
+      - uses: ./.github/actions/build.yml
         with:
           java: ${{ inputs.java }}
           task: ${{ inputs.task }}
@@ -69,10 +69,10 @@ jobs:
           github-changelog: ${{ github.event.release.body }}
           fail-mode: warn
           
-          modrinth-id:  ${{ inputs.modrinth }}
-          curseforge-id:  ${{ inputs.curseforge }}
-          game-versions:  ${{ inputs.versions }}
-          loaders:  ${{ inputs.loaders }}
+          modrinth-id: ${{ inputs.modrinth }}
+          curseforge-id: ${{ inputs.curseforge }}
+          game-versions: ${{ inputs.versions }}
+          loaders: ${{ inputs.loaders }}
           dependencies: ${{ inputs.dependencies }}
           files: ${{ inputs.files }}
           
