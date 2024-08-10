@@ -36,6 +36,10 @@ on:
           paper
           spigot
         description: The supported loaders of the project
+      dependencies:
+        type: string
+        required: false
+        description: The dependencies of the project
       files:
         type: string
         required: false
@@ -69,6 +73,7 @@ jobs:
           curseforge-id:  ${{ inputs.curseforge }}
           game-versions:  ${{ inputs.versions }}
           loaders:  ${{ inputs.loaders }}
+          dependencies: ${{ inputs.dependencies }}
           files: ${{ inputs.files }}
           
           github-token: ${{ secrets.GITHUB_TOKEN }}
