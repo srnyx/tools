@@ -1,3 +1,6 @@
+# This workflow will build a Java project with Gradle and publish the artifacts to Github, Modrinth, and CurseForge
+# For more information see: https://github.com/Kir-Antipov/mc-publish
+
 name: Publish
 on:
   workflow_call:
@@ -7,6 +10,11 @@ on:
         required: false
         default: 8
         description: The Java version that should be used to build the project
+      task:
+        type: string
+        required: false
+        default: "build"
+        description: The Gradle task to run to build the project
       modrinth:
         type: string
         required: false
@@ -45,18 +53,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: "actions/checkout@v4.1.1"
-      - uses: "gradle/wrapper-validation-action@v2.1.2"
-      - name: Set up JDK
-        uses: "actions/setup-java@v4.2.1"
+      - uses: "./.github/workflows/just_build.yml"
         with:
-          distribution: temurin
-          java-version: ${{ inputs.java }}
-          cache: gradle
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-      - name: Build jar with Gradle
-        run: ./gradlew build
+          java: ${{ inputs.java }}
+          task: ${{ inputs.task }}
       - name: Publish artifacts
         uses: "Kir-Antipov/mc-publish@v3.3.0"
         with:

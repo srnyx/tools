@@ -1,7 +1,7 @@
-# This workflow will build a Java project with Gradle
+# This workflow will build a Java project with Gradle and upload the artifacts
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
 
-name: Build
+name: Build [Upload]
 on:
   workflow_call:
     inputs:
@@ -31,20 +31,12 @@ jobs:
     runs-on: ubuntu-latest
     if: "!contains(github.event.commits[0].message, '[no-build]')"
     steps:
-      - uses: "actions/checkout@v4.1.1"
-      - uses: "gradle/wrapper-validation-action@v2.1.2"
-      - name: Set up JDK
-        uses: "actions/setup-java@v4.2.1"
+      - uses: "./.github/workflows/just_build.yml"
         with:
-          distribution: temurin
-          java-version: ${{ inputs.java }}
-          cache: gradle
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-      - name: Build jar with Gradle
-        run: ./gradlew ${{ inputs.task }}
+          java: ${{ inputs.java }}
+          task: ${{ inputs.task }}
       - name: Upload artifacts
-        uses: "actions/upload-artifact@v4.3.1"
+        uses: "actions/upload-artifact@v4.3.6"
         with:
           name: ${{ inputs.name }}
           path: ${{ inputs.path }}
