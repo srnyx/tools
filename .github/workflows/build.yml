@@ -31,10 +31,18 @@ jobs:
     runs-on: ubuntu-latest
     if: "!contains(github.event.commits[0].message, '[no-build]')"
     steps:
-      - uses: "./.github/workflows/just_build.yml"
+      - uses: "actions/checkout@v4.1.7"
+      - uses: "gradle/actions/wrapper-validation@v3.5.0"
+      - name: Set up JDK
+        uses: "actions/setup-java@v4.2.2"
         with:
-          java: ${{ inputs.java }}
-          task: ${{ inputs.task }}
+          distribution: temurin
+          java-version: ${{ inputs.java }}
+          cache: gradle
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build jar with Gradle
+        run: ./gradlew ${{ inputs.task }}
       - name: Upload artifacts
         uses: "actions/upload-artifact@v4.3.6"
         with:
