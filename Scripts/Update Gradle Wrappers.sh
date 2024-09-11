@@ -8,7 +8,7 @@ YELLOW='\033[0;33m'
 L_YELLOW='\033[1;93m'
 
 # Array of excluded directories (just checks the name of the directory, not the full/relative path)
-excluded=(".stfolder" "Minecraft Modpacks" "Python" "Web Extensions" "Websites")
+excluded=(".stfolder" "Minecraft Modpacks" "Web Extensions" "Websites")
 is_excluded() {
   for i in "${excluded[@]}"; do
     if [[ "$1" == "$i/" ]]; then
