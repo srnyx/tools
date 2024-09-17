@@ -1,1 +1,6 @@
 /.idea
+
+# Scripts/Compare Spotify Playlists
+/Scripts/Compare Spotify Playlists/.cache
+/Scripts/Compare Spotify Playlists/config.json
+/Scripts/Compare Spotify Playlists/different_songs.csv
