@@ -2,12 +2,7 @@
 
 import os
 import re
-
-# Constants
-GRADLE_GALAXY_VERSION = "1.3.1"
-SHADOW_VERSION = "8.3.1"
-GITHUB_FOLDER_PATH = "../../.."
-EXCLUDED_CATEGORIES = ["Minecraft Modpacks", "Web Extensions", "Websites"]
+import json
 
 # Colors
 HEADER = '\033[95m'
@@ -17,21 +12,30 @@ WARNING = '\033[93m'
 RESET = '\033[0m'
 BOLD = '\033[1m'
 
+# Get config values
+with open("config.json", "r") as file:
+    config = json.load(file)
+    parent_folder_path = config["parent_folder_path"]
+    excluded_categories = config["excluded_categories"]
+    versions = config["versions"]
+    version_gradle_galaxy = versions["gradle_galaxy"]
+    version_shadow = versions["shadow"]
+
 # Iterate over all categories and projects
 print(f"{HEADER}Starting to update Gradle plugins for all projects{RESET}")
-with os.scandir(GITHUB_FOLDER_PATH) as categories:
+with os.scandir(parent_folder_path) as categories:
     for category in categories:
         # Check if file is a directory
         if not category.is_dir():
             continue
 
         # Check if category is excluded
-        if category.name in EXCLUDED_CATEGORIES:
+        if category.name in excluded_categories:
             print(f"{WARNING}{category.name}{RESET} Skipping category")
             continue
 
         print(f"{BLUE}{BOLD}{category.name}{RESET} Found category")
-        category_path = f"{GITHUB_FOLDER_PATH}/{category.name}"
+        category_path = f"{parent_folder_path}/{category.name}"
         with os.scandir(category_path) as projects:
             for project in projects:
                 # Check if file is a directory
@@ -55,7 +59,7 @@ with os.scandir(GITHUB_FOLDER_PATH) as categories:
                 has_gradle_galaxy = 'id("xyz.srnyx.gradle-galaxy")' in content
                 if has_gradle_galaxy:
                     print(f"{BLUE}{log_name}{RESET} Updating Gradle Galaxy")
-                    content = re.sub(r'id\("xyz\.srnyx\.gradle-galaxy"\) version "\d+\.\d+\.\d+"', f'id("xyz.srnyx.gradle-galaxy") version "{GRADLE_GALAXY_VERSION}"', content)
+                    content = re.sub(r'id\("xyz\.srnyx\.gradle-galaxy"\) version "\d+\.\d+\.\d+"', f'id("xyz.srnyx.gradle-galaxy") version "{version_gradle_galaxy}"', content)
 
                 # Update Shadow
                 has_old_shadow = 'id("com.github.johnrengelman.shadow")' in content
@@ -68,7 +72,7 @@ with os.scandir(GITHUB_FOLDER_PATH) as categories:
                         print(f"{BLUE}{log_name}{RESET} Updating Shadow")
                         pattern = r'id\("com\.gradleup\.shadow"\) version "\d+\.\d+\.\d+"'
 
-                    content = re.sub(pattern, f'id("com.gradleup.shadow") version "{SHADOW_VERSION}"', content)
+                    content = re.sub(pattern, f'id("com.gradleup.shadow") version "{version_shadow}"', content)
 
                 # Write
                 if has_gradle_galaxy or has_shadow:
