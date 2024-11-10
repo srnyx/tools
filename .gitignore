@@ -1,6 +1,7 @@
 /.idea
 
 # Scripts
+/Scripts/temporary.py
 # Compare Spotify Playlists
 /Scripts/Compare Spotify Playlists/.cache
 /Scripts/Compare Spotify Playlists/config.json
