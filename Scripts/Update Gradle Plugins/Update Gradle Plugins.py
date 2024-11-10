@@ -62,12 +62,16 @@ with os.scandir(parent_folder_path) as categories:
                     content = re.sub(r'id\("xyz\.srnyx\.gradle-galaxy"\) version "\d+\.\d+\.\d+"', f'id("xyz.srnyx.gradle-galaxy") version "{version_gradle_galaxy}"', content)
 
                 # Update Shadow
-                has_old_shadow = 'id("com.github.johnrengelman.shadow")' in content
-                has_shadow = has_old_shadow or 'id("com.gradleup.shadow")' in content
+                has_johnrengelman_shadow = 'id("com.github.johnrengelman.shadow")' in content
+                has_goooler_shadow = 'id("io.github.goooler.shadow")' in content
+                has_shadow = has_johnrengelman_shadow or has_goooler_shadow or 'id("com.gradleup.shadow")' in content
                 if has_shadow:
-                    if has_old_shadow:
-                        print(f"{BLUE}{log_name}{RESET} Updating Shadow (old)")
+                    if has_johnrengelman_shadow:
+                        print(f"{BLUE}{log_name}{RESET} Updating Shadow (johnrengelman)")
                         pattern = r'id\("com\.github\.johnrengelman\.shadow"\) version "\d+\.\d+\.\d+"'
+                    elif has_goooler_shadow:
+                        print(f"{BLUE}{log_name}{RESET} Updating Shadow (goooler)")
+                        pattern = r'id\("io\.github\.goooler\.shadow"\) version "\d+\.\d+\.\d+"'
                     else:
                         print(f"{BLUE}{log_name}{RESET} Updating Shadow")
                         pattern = r'id\("com\.gradleup\.shadow"\) version "\d+\.\d+\.\d+"'
