@@ -6,5 +6,7 @@
 /Scripts/Compare Spotify Playlists/.cache
 /Scripts/Compare Spotify Playlists/config.json
 /Scripts/Compare Spotify Playlists/different_songs.csv
+# Remove Taskbar from Clips
+/Scripts/Remove Taskbar from Clips/*.mp4
 # Update Gradle Plugins
 /Scripts/Update Gradle Plugins/config.json
