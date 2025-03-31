@@ -7,6 +7,9 @@ from PIL import Image
 ping = Image.open("ping.png")
 input_png = Image.open("input.png")
 
+# Resize ping to same size as input
+ping = ping.resize(input_png.size)
+
 # Paste the fake ping
 input_png.paste(ping, (0, 0), ping)
 
