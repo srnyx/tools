@@ -3,6 +3,7 @@
 import os
 import re
 import json
+import requests
 
 # Colors
 HEADER = '\033[95m'
@@ -17,9 +18,7 @@ with open("config.json", "r") as file:
     config = json.load(file)
     parent_folder_path = config["parent_folder_path"]
     excluded_categories = config["excluded_categories"]
-    versions = config["versions"]
-    version_gradle_galaxy = versions["gradle_galaxy"]
-    version_shadow = versions["shadow"]
+    plugins = config["plugins"]
 
 # Iterate over all categories and projects
 print(f"{HEADER}Starting to update Gradle plugins for all projects{RESET}")
@@ -54,32 +53,65 @@ with os.scandir(parent_folder_path) as categories:
                 # Read
                 with open(file_path, "r") as file:
                     content = file.read()
+                original_content = content
 
-                # Update Gradle Galaxy
-                has_gradle_galaxy = 'id("xyz.srnyx.gradle-galaxy")' in content
-                if has_gradle_galaxy:
-                    print(f"{BLUE}{log_name}{RESET} Updating Gradle Galaxy")
-                    content = re.sub(r'id\("xyz\.srnyx\.gradle-galaxy"\) version "\d+\.\d+\.\d+"', f'id("xyz.srnyx.gradle-galaxy") version "{version_gradle_galaxy}"', content)
+                # Store versions
+                versions = plugins
 
-                # Update Shadow
-                has_johnrengelman_shadow = 'id("com.github.johnrengelman.shadow")' in content
-                has_goooler_shadow = 'id("io.github.goooler.shadow")' in content
-                has_shadow = has_johnrengelman_shadow or has_goooler_shadow or 'id("com.gradleup.shadow")' in content
-                if has_shadow:
-                    if has_johnrengelman_shadow:
-                        print(f"{BLUE}{log_name}{RESET} Updating Shadow (johnrengelman)")
-                        pattern = r'id\("com\.github\.johnrengelman\.shadow"\) version "\d+\.\d+\.\d+"'
-                    elif has_goooler_shadow:
-                        print(f"{BLUE}{log_name}{RESET} Updating Shadow (goooler)")
-                        pattern = r'id\("io\.github\.goooler\.shadow"\) version "\d+\.\d+\.\d+"'
-                    else:
-                        print(f"{BLUE}{log_name}{RESET} Updating Shadow")
-                        pattern = r'id\("com\.gradleup\.shadow"\) version "\d+\.\d+\.\d+"'
+                # Update plugins
+                for plugin, version in plugins.items():
+                    # If shadow, do special handling
+                    if plugin == "com.gradleup.shadow":
+                        if 'id("com.github.johnrengelman.shadow")' in content:
+                            content = content.replace('id("com.github.johnrengelman.shadow")', 'id("com.gradleup.shadow")')
+                        elif 'id("io.github.goooler.shadow")' in content:
+                            content = content.replace('id("io.github.goooler.shadow")', 'id("com.gradleup.shadow")')
 
-                    content = re.sub(pattern, f'id("com.gradleup.shadow") version "{version_shadow}"', content)
+                    # Check if plugin is in content
+                    if f'id("{plugin}")' not in content:
+                        continue
+
+                    # Get stored version
+                    version = versions.get(plugin)
+
+                    # Retrieve latest stable version if auto
+                    if version == "auto":
+                        print(f"{BLUE}{log_name}{RESET} Retrieving latest version for {plugin}")
+                        try:
+                            # Get all versions
+                            plugin_versions = []
+                            print(f"https://plugins.gradle.org/m2/{plugin.replace('.', '/')}")
+                            for link in re.findall(r'href="([^"]+)"', requests.get(f"https://plugins.gradle.org/m2/{plugin.replace('.', '/')}").text):
+                                if re.match(r'^\d+\.\d+\.\d+/', link):
+                                    plugin_versions.append(link[:-1])
+                        except requests.RequestException as e:
+                            print(f"{WARNING}{log_name}{RESET} Failed to retrieve latest version for {plugin}: {e}")
+                            continue
+
+                        # Get latest version
+                        print(plugin_versions)
+                        version = max(plugin_versions, key=lambda x: list(map(int, x.split('.'))))
+                        if version is None:
+                            print(f"{WARNING}{log_name}{RESET} No latest version found for {plugin}")
+                            continue
+                        versions[plugin] = version
+
+                    # Cancel if version is valid
+                    if not re.match(r'^\d+\.\d+\.\d+$', version):
+                        print(f"{WARNING}{log_name}{RESET} Invalid version '{version}' for {plugin}")
+                        continue
+
+                    # Check if version is already up to date
+                    if f'id("{plugin}") version "{version}"' in content:
+                        print(f"{BLUE}{log_name}{RESET} {plugin} is already up to date")
+                        continue
+
+                    # Update version
+                    print(f"{BLUE}{log_name}{RESET} Updating {plugin} to version {version}")
+                    content = re.sub(r'id\("' + re.escape(plugin) + r'"\) version "\d+\.\d+\.\d+"', f'id("{plugin}") version "{version}"', content)
 
                 # Write
-                if has_gradle_galaxy or has_shadow:
+                if content != original_content:
                     with open(file_path, "w") as file:
                         file.write(content)
 
