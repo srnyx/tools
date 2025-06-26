@@ -16,5 +16,7 @@
 /Scripts/Image Dither/output.*
 # Remove Taskbar from Clips
 /Scripts/Remove Taskbar from Clips/*.mp4
+# Sort GitHub Repositories by Creation Date
+/Scripts/Sort GitHub Repositories by Creation Date/config.json
 # Update Gradle Plugins
 /Scripts/Update Gradle Plugins/config.json
