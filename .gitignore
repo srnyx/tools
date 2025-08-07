@@ -6,6 +6,8 @@
 /Scripts/Compare Spotify Playlists/.cache
 /Scripts/Compare Spotify Playlists/config.json
 /Scripts/Compare Spotify Playlists/different_songs.csv
+# Event Alerts Statistics
+/Scripts/Event Alerts Statistics/config.json
 # Fake Discord Ping
 /Scripts/Fake Discord Ping/input.png
 /Scripts/Fake Discord Ping/output.png
