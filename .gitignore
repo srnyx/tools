@@ -20,5 +20,7 @@
 /Scripts/Remove Taskbar from Clips/*.mp4
 # Sort GitHub Repositories by Creation Date
 /Scripts/Sort GitHub Repositories by Creation Date/config.json
+# Update Crisp Monitored Services
+/Scripts/Update Crisp Monitored Services/config.json
 # Update Gradle Plugins
 /Scripts/Update Gradle Plugins/config.json
