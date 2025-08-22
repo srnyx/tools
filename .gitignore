@@ -2,12 +2,9 @@
 
 # Scripts
 /Scripts/temporary.py
+/Scripts/*/config.json
 # Compare Spotify Playlists
-/Scripts/Compare Spotify Playlists/.cache
-/Scripts/Compare Spotify Playlists/config.json
 /Scripts/Compare Spotify Playlists/different_songs.csv
-# Event Alerts Statistics
-/Scripts/Event Alerts Statistics/config.json
 # Fake Discord Ping
 /Scripts/Fake Discord Ping/input.png
 /Scripts/Fake Discord Ping/output.png
@@ -18,9 +15,3 @@
 /Scripts/Image Dither/output.*
 # Remove Taskbar from Clips
 /Scripts/Remove Taskbar from Clips/*.mp4
-# Sort GitHub Repositories by Creation Date
-/Scripts/Sort GitHub Repositories by Creation Date/config.json
-# Update Crisp Monitored Services
-/Scripts/Update Crisp Monitored Services/config.json
-# Update Gradle Plugins
-/Scripts/Update Gradle Plugins/config.json

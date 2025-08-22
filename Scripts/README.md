@@ -11,3 +11,4 @@ Just some random scripts to perform automated tasks
 - [Update Crisp Monitored Services](/Scripts/Update%20Crisp%20Monitored%20Services): A script to update the monitored services for a status page in [Crisp](http://crisp.chat) (made for [Lilypad](https://lilypad.gg))
 - [Update Gradle Plugins](/Scripts/Update%20Gradle%20Plugins): A script to update some [Gradle](https://gradle.org) plugins ([Gradle Galaxy](https://github.com/srnyx/gradle-galaxy), [Shadow](https://github.com/GradleUp/shadow), etc...) for all my projects
 - [Update Gradle Wrappers.sh](/Scripts/Update%20Gradle%20Wrappers.sh): A script to update all [Gradle](https://gradle.org) wrappers for all my projects
+- [Update Minecraft Projects Supported Versions](/Scripts/Update%20Minecraft%20Projects%20Supported%20Versions): Script to automatically update all latest releases of Minecraft projects to support their corresponding Minecraft versions
