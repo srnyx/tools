@@ -13,7 +13,7 @@ on:
       java:
         type: string
         required: false
-        default: 8
+        default: 21
         description: The Java version that should be used to build the project
       path:
         type: string
