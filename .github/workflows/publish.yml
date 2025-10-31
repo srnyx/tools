@@ -36,6 +36,11 @@ on:
           paper
           spigot
         description: The supported loaders of the project
+      version-type:
+        type: string
+        required: false
+        default: release
+        description: The version type (release, beta, alpha)
       dependencies:
         type: string
         required: false
@@ -81,6 +86,7 @@ jobs:
           curseforge-id: ${{ inputs.curseforge }}
           game-versions: ${{ inputs.versions }}
           loaders: ${{ inputs.loaders }}
+          version-type: ${{ inputs.version-type }}
           dependencies: ${{ inputs.dependencies }}
           files: ${{ inputs.files }}
           
