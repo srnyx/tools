@@ -21,6 +21,7 @@ bukkit_slug_url = "https://api.curseforge.com/v1/mods/{project_id}"
 hangar_jwt = None
 invalid_hangar_versions = ["1.8.9", "1.7.x", "1.6.x", "1.5.x", "1.4.x", "1.3.x", "1.2.x", "1.1.x", "1.0.x"]
 bukkit_versions = None
+bukkit_major_only = ['1.8', '1.9', '1.10', '1.11', '1.12', '1.13', '1.14', '1.15', '1.16', '1.17']
 
 # Colors
 red = "\033[31m"
@@ -214,17 +215,26 @@ def bukkit(name, project):
         return
     bukkit_id = platforms['bukkit']
 
+    # Process major-only versions
+    new_versions = project["minecraft-versions"].copy()
+    for version in project["minecraft-versions"]:
+        for major in bukkit_major_only:
+            if version.startswith(major + "."):
+                if major not in new_versions:
+                    new_versions.append(major)
+                new_versions.remove(version)
+
     # Map versions to IDs
     got_bukkit_versions = get_bukkit_versions()
     if got_bukkit_versions is None or len(got_bukkit_versions) == 0:
         print(f"{red}{name} | BUKKIT | Failed to fetch Bukkit versions")
         return
     version_ids = []
-    for version in project["minecraft-versions"]:
+    for version in new_versions:
         if version in got_bukkit_versions:
             version_ids.append(got_bukkit_versions[version])
         else:
-            print(f"{yellow}{name} | BUKKIT | Version {version} not found in Bukkit versions, skipping")
+            print(f"{yellow}{name} | BUKKIT | Version {version} not found in Bukkit versions, skipping it")
     if len(version_ids) == 0:
         print(f"{yellow}{name} | BUKKIT | No valid versions found, skipping")
         return
@@ -235,7 +245,7 @@ def bukkit(name, project):
         bukkit_files_url.format(project_id=bukkit_id),
         headers={
             "User-Agent": user_agent,
-            "Authorization": tokens_bukkit_new,
+            "x-api-key": tokens_bukkit_new,
             "Content-Type": "application/json"
         })
     if latest_version_response.status_code != 200:
@@ -247,7 +257,6 @@ def bukkit(name, project):
         return
     latest_version = latest_version_data[0]
     latest_version_id = latest_version['id']
-    print(latest_version)
 
     # Get mod slug
     slug = name
@@ -256,7 +265,7 @@ def bukkit(name, project):
         bukkit_slug_url.format(project_id=bukkit_id),
         headers={
             "User-Agent": user_agent,
-            "Authorization": tokens_bukkit_new,
+            "x-api-key": tokens_bukkit_new,
             "Content-Type": "application/json"
         })
     if slug_response.status_code == 200:
@@ -269,7 +278,7 @@ def bukkit(name, project):
     # Check if Minecraft versions already match
     different = False
     game_versions = latest_version['gameVersions']
-    for version in project["minecraft-versions"]:
+    for version in new_versions:
         if version not in game_versions:
             different = True
             break
@@ -284,13 +293,12 @@ def bukkit(name, project):
         headers={
             "User-Agent": user_agent,
             "X-Api-Token": tokens_bukkit_upload,
-            "Content-Type": "application/json"
         },
-        json={
-            "metadata": {
-                "fileId": latest_version_id,
+        files={
+            "metadata": (None, json.dumps({
+                "fileID": latest_version_id,
                 "gameVersions": version_ids
-            }
+            }), "application/json")
         })
     if update_response.status_code != 200:
         print(f"{red}{name} | BUKKIT | Failed to update supported versions: {update_response.status_code} {update_response.text}")
@@ -338,7 +346,8 @@ def get_bukkit_versions():
 
     bukkit_versions = {}
     for version in version_response.json():
-        bukkit_versions[version["name"]] = version["id"]
+        if version["gameVersionTypeID"] == 1:
+            bukkit_versions[version["name"]] = version["id"]
     return bukkit_versions
 
 

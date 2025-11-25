@@ -10,6 +10,8 @@ This is primarily for personal use since it uses my custom API for retrieving pr
 
 ```json
 {
+  "user-agent": "srnyx/tools (Update Projects' MC Versions)",
+
   "tokens": {
     "modrinth": "MODRINTH_TOKEN",
     "hangar": "HANGAR_TOKEN",
