@@ -3,7 +3,7 @@ import requests
 
 
 # URLs
-modrinth_version_url = "https://api.modrinth.com/v2/project/{project_id}/version"
+modrinth_version_url = "https://api.modrinth.com/v2/project/{project_id}/version?include_changelog=false"
 modrinth_update_url = "https://api.modrinth.com/v2/version/{version_id}"
 
 hangar_jwt_url = "https://hangar.papermc.io/api/v1/authenticate?apiKey={api_key}"
