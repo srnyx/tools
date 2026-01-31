@@ -6,6 +6,7 @@ Just some random scripts to perform automated tasks
 - [Event Alerts Statistics](/Scripts/Event%20Alerts%20Statistics): A script to analyze [Event Alerts](https://eventalerts.gg)' event data
 - [Fake Discord Ping](/Scripts/Fake%20Discord%20Ping): A script to generate a fake ping for your [Discord](https://discord.com) server icons
 - [Image Dither](/Scripts/Image%20Dither): A script to dither an image using ordered dithering (with ability to use a custom color)
+- [Remove EXIF Data](/Scripts/Remove%20EXIF%20Data): A script to remove EXIF data from all images in the same directory and its subdirectories
 - [Remove Taskbar from Clips](/Scripts/Remove%20Taskbar%20from%20Clips): A script to remove the taskbar from clips of screen recordings (specifically from [SteelSeries GG](https://steelseries.com/gg) Moments)
 - [Sort GitHub Repositories by Creation Date](/Scripts/Sort%20GitHub%20Repositories%20by%20Creation%20Date): A script to list all of your [GitHub](https://github.com) repositories sorted by their creation date
 - [Update Crisp Monitored Services](/Scripts/Update%20Crisp%20Monitored%20Services): A script to update the monitored services for a status page in [Crisp](http://crisp.chat) (made for [Lilypad](https://lilypad.gg))
