@@ -13,5 +13,8 @@
 # Image Dither
 /Scripts/Image Dither/input.*
 /Scripts/Image Dither/output.*
+# Optimize Photos
+/Scripts/Optimize Photos/original
+/Scripts/Optimize Photos/optimized
 # Remove Taskbar from Clips
 /Scripts/Remove Taskbar from Clips/*.mp4
