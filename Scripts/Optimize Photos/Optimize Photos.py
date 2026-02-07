@@ -3,7 +3,7 @@ import sys
 import threading
 import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from PIL import Image
+from PIL import Image, ImageOps
 
 # Parallel config
 max_workers = min(32, (os.cpu_count() or 1) * 4)  # tuned for IO-heavy work
@@ -110,6 +110,24 @@ def process_image(original_path, optimized_path):
         original_size = os.path.getsize(original_path)
 
         with Image.open(original_path) as img:
+            # Ensure EXIF orientation is applied so portrait images aren't rotated
+            img = ImageOps.exif_transpose(img)
+
+            # Try to get EXIF and remove orientation tag so saved file won't contain a leftover tag
+            exif = None
+            try:
+                if hasattr(img, 'getexif'):
+                    exif = img.getexif()
+                    # Remove orientation tag (274) if present
+                    if exif is not None and 274 in exif:
+                        try:
+                            del exif[274]
+                        except Exception:
+                            # ignore if deletion fails
+                            pass
+            except Exception:
+                exif = None
+
             width, height = img.size
             should_resize = False
             if resizing_enabled:
@@ -140,7 +158,22 @@ def process_image(original_path, optimized_path):
                     img_to_save = background
                 else:
                     img_to_save = img.convert('RGB') if img.mode != 'RGB' else img
-                img_to_save.save(optimized_path, optimize=True, quality=quality)
+                # Save JPEG with sanitized EXIF if available to avoid keeping orientation tag
+                try:
+                    if exif is not None:
+                        try:
+                            exif_bytes = exif.tobytes()
+                        except Exception:
+                            exif_bytes = None
+                        if exif_bytes:
+                            img_to_save.save(optimized_path, optimize=True, quality=quality, exif=exif_bytes)
+                        else:
+                            img_to_save.save(optimized_path, optimize=True, quality=quality)
+                    else:
+                        img_to_save.save(optimized_path, optimize=True, quality=quality)
+                except Exception:
+                    # Fallback without exif parameter if Pillow version doesn't support it
+                    img_to_save.save(optimized_path, optimize=True, quality=quality)
             elif ext == '.png':
                 # PNG: optimize; quality parameter is not used for PNG by Pillow
                 img.save(optimized_path, optimize=True)
