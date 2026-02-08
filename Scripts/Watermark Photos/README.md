@@ -16,7 +16,6 @@ A script to put a configurable diagonal watermark on photos (in given directory 
     
     "font": {
       "family": "arial.ttf",
-      "size": 200,
       "color": "#FFFFFF",
       "opacity": 0.5
     }

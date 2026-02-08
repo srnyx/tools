@@ -2,6 +2,7 @@ import os
 import sys
 import threading
 import json
+import shutil                                     # added
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from PIL import Image, ImageOps
 
@@ -33,6 +34,13 @@ with open("config.json", 'r') as f:
     resizing_max_width = resizing.get("max_width", 4096)
     resizing_max_height = resizing.get("max_height", 3072)
     resizing_upscale = resizing.get("upscale", False)
+
+# Delete existing optimized_folder
+if os.path.exists(optimized_folder):
+    try:
+        shutil.rmtree(optimized_folder)
+    except Exception as e:
+        print(f"{red}Failed to remove optimized folder {optimized_folder}: {e}{reset}")
 
 # Stats (thread-safe updates)
 stats_lock = threading.Lock()
