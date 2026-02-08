@@ -24,7 +24,7 @@ if not os.path.exists("config.json"):
     print(f"{red}Config file config.json not found. Please create it with the necessary settings.{reset}")
     sys.exit(1)
 with open("config.json", 'r') as f:
-    config = json.load(f)
+    config = json.load(f).get("optimization", {})
     original_folder = config.get("original_folder", "original")
     optimized_folder = config.get("optimized_folder", "optimized")
     quality = config.get("quality", 85)

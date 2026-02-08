@@ -18,3 +18,5 @@
 /Scripts/Optimize Photos/optimized
 # Remove Taskbar from Clips
 /Scripts/Remove Taskbar from Clips/*.mp4
+# Watermark Photos
+/Scripts/Watermark Photos/optimized

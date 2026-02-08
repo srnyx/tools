@@ -1,6 +1,6 @@
 # Optimize Photos
 
-A script to optimize all images in the same directory and its subdirectories
+A script to optimize all images in the same directory and its subdirectories (this also removes EXIF data). Optimized images are stored in a separate folder, so the original images are not modified.
 
 *GitHub Copilot wrote 90% of this, I was in a rush lol*
 
@@ -8,15 +8,18 @@ A script to optimize all images in the same directory and its subdirectories
 
 ```json
 {
-  "original_folder": "original",
-  "optimized_folder": "optimized",
-  "quality": 25,
-  
-  "resizing": {
-    "enabled": true,
-    "max_width": 4096,
-    "max_height": 3072,
-    "upscale": false
+  "optimization": {
+    "original_folder": "original",
+    "optimized_folder": "optimized",
+    
+    "quality": 25,
+    
+    "resizing": {
+      "enabled": true,
+      "max_width": 4096,
+      "max_height": 3072,
+      "upscale": false
+    }
   }
 }
 ```
