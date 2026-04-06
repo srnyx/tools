@@ -1,0 +1,64 @@
+# This workflow will build a Java project with Gradle, upload the artifacts to the action, and publish them to Maven
+# For more information see:
+#   - https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+#   - https://reposilite.com/guide/github
+
+name: Maven Publish
+on:
+  workflow_call:
+    inputs:
+      name:
+        type: string
+        required: false
+        default: "Artifact"
+        description: "The name of the artifact when it's done building and uploaded"
+      java:
+        type: string
+        required: false
+        default: 21
+        description: The Java version that should be used to build the project
+      path:
+        type: string
+        required: false
+        default: build/libs
+        description: The path to the built files to be uploaded as artifacts
+      task:
+        type: string
+        required: false
+        default: "build"
+        description: The Gradle task to run to build the project
+      task_publish:
+        type: string
+        required: false
+        default: "publish"
+        description: The Gradle task to run to publish the project
+    secrets:
+      MAVEN_NAME:
+        required: true
+        description: Token name
+      MAVEN_SECRET:
+        required: true
+        description: Token secret (password)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.commits[0].message, '[no-build]')"
+    steps:
+      - uses: "actions/checkout@v5.0.0"
+      - uses: "gradle/actions/wrapper-validation@v4.4.2"
+      - name: Set up JDK
+        uses: "actions/setup-java@v5.0.0"
+        with:
+          distribution: temurin
+          java-version: ${{ inputs.java }}
+          cache: gradle
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build and publish jar with Gradle
+        run: ./gradlew ${{ inputs.task }} ${{ inputs.task_publish }}
+      - name: Upload artifacts to action
+        uses: "actions/upload-artifact@v4.6.2"
+        with:
+          name: ${{ inputs.name }}
+          path: ${{ inputs.path }}
