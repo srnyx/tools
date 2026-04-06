@@ -2,7 +2,7 @@ import os
 import sys
 import threading
 import json
-import shutil                                     # added
+import shutil
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from PIL import Image, ImageOps
 
