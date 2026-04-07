@@ -7,6 +7,19 @@ name: Maven Publish
 on:
   workflow_call:
     inputs:
+      channel:
+        type: string
+        required: true
+        description: "The release channel to publish to (ex: snapshots)"
+      maven_url:
+        type: string
+        required: false
+        default: "https://repo.srnyx.com"
+        description: "The URL of the repository to publish to (NO trailing /)"
+      version:
+        type: string
+        required: false
+        description: "The version of the artifact (default: release tag if channel is releases, commit SHA if not)"
       name:
         type: string
         required: false
@@ -46,6 +59,17 @@ jobs:
     if: "!contains(github.event.commits[0].message, '[no-build]')"
     steps:
       - uses: "actions/checkout@v5.0.0"
+      - name: Get version
+        id: version
+        run: |
+          if [[ -n "${{ inputs.version }}" ]]; then
+            version="${{ inputs.version }}"
+          elif [[ "${{ inputs.channel }}" == "releases" ]]; then
+            version="${GITHUB_REF_NAME}"
+          else
+            version="${GITHUB_SHA::7}"
+          fi
+          echo "version=$version" >> $GITHUB_OUTPUT
       - uses: "gradle/actions/wrapper-validation@v4.4.2"
       - name: Set up JDK
         uses: "actions/setup-java@v5.0.0"
@@ -58,6 +82,8 @@ jobs:
       - name: Build and publish jar with Gradle
         run: ./gradlew ${{ inputs.task }} ${{ inputs.task_publish }}
         env:
+          VERSION: ${{ steps.version.outputs.version }}
+          MAVEN_URL: ${{ inputs.maven_url }}/${{ inputs.channel }}
           MAVEN_NAME: ${{ secrets.MAVEN_NAME }}
           MAVEN_SECRET: ${{ secrets.MAVEN_SECRET }}
       - name: Upload artifacts to action
