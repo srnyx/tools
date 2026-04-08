@@ -18,10 +18,9 @@ bukkit_update_url = "https://minecraft.curseforge.com/api/projects/{project_id}/
 bukkit_slug_url = "https://api.curseforge.com/v1/mods/{project_id}"
 
 # Misc
-hangar_jwt = None
 invalid_hangar_versions = ["1.8.9", "1.7.x", "1.6.x", "1.5.x", "1.4.x", "1.3.x", "1.2.x", "1.1.x", "1.0.x"]
-bukkit_versions = None
 bukkit_major_only = ['1.8', '1.9', '1.10', '1.11', '1.12', '1.13', '1.14', '1.15', '1.16', '1.17']
+not_on_bukkit = ['26.1', '26.1.1']
 
 # Colors
 red = "\033[31m"
@@ -29,6 +28,10 @@ green = "\033[32m"
 yellow = "\033[33m"
 blue = "\033[34m"
 reset = "\033[0m"
+
+# Memory
+hangar_jwt = None
+bukkit_versions = None
 
 
 # Get config values
@@ -231,6 +234,8 @@ def bukkit(name, project):
         return
     version_ids = []
     for version in new_versions:
+        if version in not_on_bukkit:
+            continue
         if version in got_bukkit_versions:
             version_ids.append(got_bukkit_versions[version])
         else:
