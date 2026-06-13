@@ -10,6 +10,7 @@ Just some random scripts to perform automated tasks
 - [Remove EXIF Data](/Scripts/Remove%20EXIF%20Data): A script to remove EXIF data from all images in the same directory and its subdirectories
 - [Remove Taskbar from Clips](/Scripts/Remove%20Taskbar%20from%20Clips): A script to remove the taskbar from clips of screen recordings (specifically from [SteelSeries GG](https://steelseries.com/gg) Moments)
 - [Sort GitHub Repositories by Creation Date](/Scripts/Sort%20GitHub%20Repositories%20by%20Creation%20Date): A script to list all of your [GitHub](https://github.com) repositories sorted by their creation date
+- [Tixte Export](/Scripts/Tixte%20Export): A script to export the URLs of your uploads on [Tixte](https://tixte.com) and optionally download the files from the URLs
 - [Update Crisp Monitored Services](/Scripts/Update%20Crisp%20Monitored%20Services): A script to update the monitored services for a status page in [Crisp](http://crisp.chat) (made for [Lilypad](https://lilypad.gg))
 - [Update Gradle Plugins](/Scripts/Update%20Gradle%20Plugins): A script to update some [Gradle](https://gradle.org) plugins ([Gradle Galaxy](https://github.com/srnyx/gradle-galaxy), [Shadow](https://github.com/GradleUp/shadow), etc...) for all my projects
 - [Update Gradle Wrappers.sh](/Scripts/Update%20Gradle%20Wrappers.sh): A script to update all [Gradle](https://gradle.org) wrappers for all my projects
