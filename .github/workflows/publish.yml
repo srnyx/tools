@@ -13,38 +13,8 @@ on:
       task:
         type: string
         required: false
-        default: "build"
+        default: "build publishMods"
         description: The Gradle task to run to build the project
-      modrinth:
-        type: string
-        required: false
-        description: The ID of the project on Modrinth
-      curseforge:
-        type: string
-        required: false
-        description: The ID of the project on CurseForge
-      versions:
-        type: string
-        required: false
-        default: ">=1.8.8"
-        description: The supported Minecraft versions of the project
-      loaders:
-        type: string
-        required: false
-        default: |
-          purpur
-          paper
-          spigot
-        description: The supported loaders of the project
-      version-type:
-        type: string
-        required: false
-        default: release
-        description: The version type (release, beta, alpha)
-      dependencies:
-        type: string
-        required: false
-        description: The dependencies of the project
       files:
         type: string
         required: false
@@ -62,34 +32,29 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: "actions/checkout@v5.0.0"
-      - uses: "gradle/actions/wrapper-validation@v4.4.2"
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          
+      - uses: gradle/actions/wrapper-validation@v6
+      
       - name: Set up JDK
-        uses: "actions/setup-java@v5.0.0"
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: ${{ inputs.java }}
           cache: gradle
+          
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+        
       - name: Build jar with Gradle
         run: ./gradlew ${{ inputs.task }}
-      - name: Publish artifacts
-        uses: "Kir-Antipov/mc-publish@v3.3.0"
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+          
+      - name: Upload to GitHub release
+        uses: softprops/action-gh-release@v3
         with:
-          game-version-filter: releases
-          changelog: ${{ github.event.release.html_url }}
-          github-changelog: ${{ github.event.release.body }}
-          fail-mode: warn
-          
-          modrinth-id: ${{ inputs.modrinth }}
-          curseforge-id: ${{ inputs.curseforge }}
-          game-versions: ${{ inputs.versions }}
-          loaders: ${{ inputs.loaders }}
-          version-type: ${{ inputs.version-type }}
-          dependencies: ${{ inputs.dependencies }}
           files: ${{ inputs.files }}
-          
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
