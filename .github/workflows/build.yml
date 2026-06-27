@@ -41,7 +41,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: "!contains(github.event.commits[0].message, '[no-build]')"
+    if: "github.event_name == 'release' || !contains(github.event.commits[0].message, '[no-build]')"
     steps:
       - uses: actions/checkout@v6
         with:
