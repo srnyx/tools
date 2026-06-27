@@ -1,4 +1,4 @@
-# This workflow will build a Java project with Gradle, upload the artifacts to the action, and publish them to Maven
+# This workflow will build a Java project with Gradle, upload the artifacts to the action/release, and publish them to Maven
 # For more information see:
 #   - https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
 #   - https://reposilite.com/guide/github
@@ -16,14 +16,10 @@ on:
         required: false
         default: "https://repo.srnyx.com"
         description: "The URL of the repository to publish to (NO trailing /)"
-      version:
-        type: string
-        required: false
-        description: "The version of the artifact (default: release tag if channel is releases, commit SHA if not)"
       name:
         type: string
         required: false
-        default: "Artifact"
+        default: ""
         description: "The name of the artifact when it's done building and uploaded"
       java:
         type: string
@@ -33,7 +29,7 @@ on:
       path:
         type: string
         required: false
-        default: __default__
+        default: ""
         description: The path to the built files to be uploaded as artifacts
       build_tool:
         type: string
@@ -48,20 +44,27 @@ on:
     secrets:
       MAVEN_NAME:
         required: true
-        description: Maven username
+        description: Maven username (if maven-publishing)
       MAVEN_SECRET:
         required: true
-        description: Maven secret (password)
+        description: Maven secret (password) (if maven-publishing)
+      MODRINTH_TOKEN:
+        required: false
+        description: Modrinth token (if platform-publishing)
+      CURSEFORGE_TOKEN:
+        required: false
+        description: CurseForge token (if platform-publishing)
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: "!contains(github.event.commits[0].message, '[no-build]')"
+    if: "github.event_name == 'release' || !contains(github.event.commits[0].message, '[no-build]')"
     steps:
-      - uses: "actions/checkout@v6.0.2"
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       
+      # Also update build.yml if changed!
       - name: Build context
         id: context
         shell: bash
@@ -110,7 +113,7 @@ jobs:
           echo "command=$base $arguments" >> "$GITHUB_OUTPUT"
       
           # Artifact path
-          if [[ "${{ inputs.path }}" != "__default__" ]]; then
+          if [[ -n "${{ inputs.path }}" ]]; then
             echo "path=${{ inputs.path }}" >> "$GITHUB_OUTPUT"
           elif [[ "$tool" == "gradle" ]]; then
             echo "path=**/build/libs" >> "$GITHUB_OUTPUT"
@@ -118,23 +121,11 @@ jobs:
             echo "path=**/target/*.jar" >> "$GITHUB_OUTPUT"
           fi
           
-      - name: Get version
-        id: version
-        run: |
-          if [[ -n "${{ inputs.version }}" ]]; then
-            version="${{ inputs.version }}"
-          elif [[ "${{ inputs.channel }}" == "releases" ]]; then
-            version="${GITHUB_REF_NAME}"
-          else
-            version="${GITHUB_SHA::7}"
-          fi
-          echo "version=$version" >> $GITHUB_OUTPUT
-          
-      - uses: "gradle/actions/wrapper-validation@v6.1.0"
+      - uses: gradle/actions/wrapper-validation@v6
         if: steps.context.outputs.tool == 'gradle'
         
       - name: Set up JDK
-        uses: actions/setup-java@v5.2.0
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: ${{ inputs.java }}
@@ -147,13 +138,20 @@ jobs:
       - name: Build and publish jar
         run: ${{ steps.context.outputs.command }}
         env:
-          VERSION: ${{ steps.version.outputs.version }}
           MAVEN_URL: ${{ inputs.maven_url }}/${{ inputs.channel }}
           MAVEN_NAME: ${{ secrets.MAVEN_NAME }}
           MAVEN_SECRET: ${{ secrets.MAVEN_SECRET }}
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
           
-      - name: Upload artifacts to action
-        uses: "actions/upload-artifact@v7.0.1"
+      - name: Upload to action
+        uses: actions/upload-artifact@v7
         with:
-          name: ${{ inputs.name }}
+          name: ${{ inputs.name || github.event.repository.name }}
           path: ${{ steps.context.outputs.path }}
+          
+      - name: Upload to GitHub release
+        uses: softprops/action-gh-release@v3
+        if: github.event_name == 'release'
+        with:
+          files: ${{ steps.context.outputs.path }}

@@ -1,36 +1,42 @@
-# This workflow will build a Java project with Gradle and publish the artifacts to GitHub, Modrinth, and CurseForge
-# For more information see: https://github.com/Kir-Antipov/mc-publish
+# This workflow will build a Java project with Gradle, upload the artifacts to the action/release, and publish them to platforms
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
 
-name: Publish
+name: Platform Publish
 on:
   workflow_call:
     inputs:
+      name:
+        type: string
+        required: false
+        default: ""
+        description: "The name of the artifact when it's done building and uploaded"
       java:
         type: string
         required: false
         default: 21
         description: The Java version that should be used to build the project
+      path:
+        type: string
+        required: false
+        default: "**/build/libs"
+        description: The path to the built files to be uploaded as artifacts
       task:
         type: string
         required: false
-        default: "build publishMods"
-        description: The Gradle task to run to build the project
-      files:
-        type: string
-        required: false
-        default: build/libs/*.jar
-        description: The location of the built files to upload
+        default: build publishMods
+        description: The task to run to build the project
     secrets:
       MODRINTH_TOKEN:
         required: false
-        description: Modrinth token
+        description: Modrinth token (if platform-publishing)
       CURSEFORGE_TOKEN:
         required: false
-        description: CurseForge token
+        description: CurseForge token (if platform-publishing)
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    if: "github.event_name == 'release' || !contains(github.event.commits[0].message, '[no-build]')"
     steps:
       - uses: actions/checkout@v6
         with:
@@ -48,13 +54,20 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
         
-      - name: Build jar with Gradle
+      - name: Build jar
         run: ./gradlew ${{ inputs.task }}
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
           
+      - name: Upload to action
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ inputs.name || github.event.repository.name }}
+          path: ${{ inputs.path }}
+          
       - name: Upload to GitHub release
         uses: softprops/action-gh-release@v3
+        if: github.event_name == 'release'
         with:
-          files: ${{ inputs.files }}
+          files: ${{ inputs.path }}
