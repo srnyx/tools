@@ -18,7 +18,7 @@ on:
       path:
         type: string
         required: false
-        default: "**/build/libs"
+        default: "build/libs/*.jar"
         description: The path to the built files to be uploaded as artifacts
       task:
         type: string
@@ -68,6 +68,6 @@ jobs:
           
       - name: Upload to GitHub release
         uses: softprops/action-gh-release@v3
-        if: github.event_name == 'release'
+        if: github.ref_type == 'tag'
         with:
           files: ${{ inputs.path }}
