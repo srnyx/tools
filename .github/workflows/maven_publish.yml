@@ -54,6 +54,12 @@ on:
       CURSEFORGE_TOKEN:
         required: false
         description: CurseForge token (if platform-publishing)
+      GRADLE_PUBLISH_KEY:
+        required: false
+        description: Gradle publish key (if publishing to Gradle plugin portal)
+      GRADLE_PUBLISH_SECRET:
+        required: false
+        description: Gradle publish secret (if publishing to Gradle plugin portal)
 
 jobs:
   build:
