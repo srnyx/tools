@@ -44,6 +44,9 @@ on:
         required: false
         description: Gradle publish secret (if publishing to Gradle plugin portal)
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
