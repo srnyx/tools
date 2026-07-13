@@ -51,6 +51,11 @@ on:
         required: false
         default: ""
         description: The ID of the Pterodactyl server (required for Pterodactyl upload)
+      pterodactyl-target:
+        type: string
+        required: false
+        default: "update/"
+        description: Destination of the file on the Pterodactyl server. Can be a file name (for a single source) or a directory name ending with a slash (for multiple files).
       pterodactyl-restart:
         type: boolean
         required: false
@@ -193,7 +198,7 @@ jobs:
           panel-host: ${{ inputs['pterodactyl-panel'] }}
           server-id: ${{ inputs['pterodactyl-server'] }}
           source: ${{ steps.context.outputs.path }}
-          target: "./"
+          target: ${{ inputs['pterodactyl-target'] }}
           restart: ${{ inputs['pterodactyl-restart'] }}
         env:
           PTERODACTYL_TOKEN: ${{ secrets.PTERODACTYL_TOKEN }}
