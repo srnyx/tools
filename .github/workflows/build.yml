@@ -30,6 +30,21 @@ on:
         required: false
         default: __default__
         description: The task to run to build the project
+      pterodactyl-panel:
+        type: string
+        required: false
+        default: "https://panel.venox.network"
+        description: The host URL of the Pterodactyl panel (required for Pterodactyl upload)
+      pterodactyl-server:
+        type: string
+        required: false
+        default: ""
+        description: The ID of the Pterodactyl server (required for Pterodactyl upload)
+      pterodactyl-restart:
+        type: boolean
+        required: false
+        default: false
+        description: If you want to restart the Pterodactyl server after successful Pterodactyl upload
     secrets:
       MODRINTH_TOKEN:
         required: false
@@ -43,6 +58,9 @@ on:
       GRADLE_PUBLISH_SECRET:
         required: false
         description: Gradle publish secret (if publishing to Gradle plugin portal)
+      PTERODACTYL_TOKEN:
+        required: false
+        description: The API key for the Pterodactyl panel (required for Pterodactyl upload)
 
 permissions:
   contents: write
@@ -146,3 +164,16 @@ jobs:
         if: github.ref_type == 'tag'
         with:
           files: ${{ steps.context.outputs.path }}
+      
+      - name: Upload to Pterodactyl server
+        uses: rexlmanu/pterodactyl-upload-action@v2.1
+        if: ${{ env.PTERODACTYL_TOKEN && inputs['pterodactyl-server'] }}
+        with:
+          api-key: ${{ env.PTERODACTYL_TOKEN }}
+          panel-host: ${{ inputs['pterodactyl-panel'] }}
+          server-id: ${{ inputs['pterodactyl-server'] }}
+          source: ${{ steps.context.outputs.path }}
+          target: "./"
+          restart: ${{ inputs['pterodactyl-restart'] }}
+        env:
+          PTERODACTYL_TOKEN: ${{ secrets.PTERODACTYL_TOKEN }}
