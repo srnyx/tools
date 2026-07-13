@@ -43,7 +43,7 @@ on:
       pterodactyl-target:
         type: string
         required: false
-        default: "./update/"
+        default: "./update/Application.jar"
         description: Destination of the file on the Pterodactyl server. Can be a file name (for a single source) or a directory name ending with a slash (for multiple files).
       pterodactyl-restart:
         type: boolean
