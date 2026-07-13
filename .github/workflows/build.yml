@@ -166,7 +166,7 @@ jobs:
           files: ${{ steps.context.outputs.path }}
       
       - name: Upload to Pterodactyl server
-        uses: rexlmanu/pterodactyl-upload-action@v2.1
+        uses: rexlmanu/pterodactyl-upload-action@v2.4
         if: ${{ env.PTERODACTYL_TOKEN && inputs['pterodactyl-server'] }}
         with:
           api-key: ${{ env.PTERODACTYL_TOKEN }}
