@@ -185,7 +185,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         if: github.ref_type == 'tag'
         with:
-          files: ./artifacts/**
+          files: ./artifacts/*
       
       - name: Upload to Pterodactyl server
         uses: rexlmanu/pterodactyl-upload-action@v2.4
@@ -194,7 +194,7 @@ jobs:
           api-key: ${{ env.PTERODACTYL_TOKEN }}
           panel-host: ${{ inputs['pterodactyl-panel'] }}
           server-id: ${{ inputs['pterodactyl-server'] }}
-          source: ./artifacts/**
+          source: ./artifacts/*
           target: ${{ inputs['pterodactyl-target'] }}
           restart: ${{ inputs['pterodactyl-restart'] }}
         env:
