@@ -40,7 +40,7 @@ jobs:
   build:
     name: Build (and Platform publish)
     runs-on: ubuntu-latest
-    if: "github.event_name == 'release' || !contains(github.event.commits[0].message, '[no-build]')"
+    if: "github.ref_type == 'tag' || !contains(github.event.commits[0].message, '[no-build]')"
     outputs:
       artifact-name: ${{ steps.context.outputs.artifact-name }}
     steps:
@@ -82,6 +82,7 @@ jobs:
     name: Publish (GitHub release)
     needs: build
     runs-on: ubuntu-latest
+    if: needs.build.result == 'success' && github.ref_type == 'tag'
     steps:
       - name: Download build artifact
         uses: actions/download-artifact@v6
