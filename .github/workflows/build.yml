@@ -72,8 +72,11 @@ permissions:
 
 jobs:
   build:
+    name: Build
     runs-on: ubuntu-latest
     if: "github.event_name == 'release' || !contains(github.event.commits[0].message, '[no-build]')"
+    outputs:
+      artifact-name: ${{ steps.context.outputs.artifact-name }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -136,6 +139,9 @@ jobs:
             echo "path=target/*.jar" >> "$GITHUB_OUTPUT"
           fi
           
+          # Artifact name (shared between upload in build job and download in publish job)
+          echo "artifact-name=${{ inputs.name || github.event.repository.name }}" >> "$GITHUB_OUTPUT"
+      
       - uses: gradle/actions/wrapper-validation@v6
         if: steps.context.outputs.tool == 'gradle'
         
@@ -161,14 +167,25 @@ jobs:
       - name: Upload to action
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ inputs.name || github.event.repository.name }}
+          name: ${{ steps.context.outputs.artifact-name }}
           path: ${{ steps.context.outputs.path }}
           
+  publish:
+    name: Publish (GitHub release + Pterodactyl)
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: ${{ needs.build.outputs.artifact-name }}
+          path: ./artifacts
+
       - name: Upload to GitHub release
         uses: softprops/action-gh-release@v3
         if: github.ref_type == 'tag'
         with:
-          files: ${{ steps.context.outputs.path }}
+          files: ./artifacts/**
       
       - name: Upload to Pterodactyl server
         uses: rexlmanu/pterodactyl-upload-action@v2.4
@@ -177,7 +194,7 @@ jobs:
           api-key: ${{ env.PTERODACTYL_TOKEN }}
           panel-host: ${{ inputs['pterodactyl-panel'] }}
           server-id: ${{ inputs['pterodactyl-server'] }}
-          source: ${{ steps.context.outputs.path }}
+          source: ./artifacts/**
           target: ${{ inputs['pterodactyl-target'] }}
           restart: ${{ inputs['pterodactyl-restart'] }}
         env:

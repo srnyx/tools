@@ -37,14 +37,23 @@ permissions:
   contents: write
 
 jobs:
-  publish:
+  build:
+    name: Build (and Platform publish)
     runs-on: ubuntu-latest
     if: "github.event_name == 'release' || !contains(github.event.commits[0].message, '[no-build]')"
+    outputs:
+      artifact-name: ${{ steps.context.outputs.artifact-name }}
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           
+      - name: Build context
+        id: context
+        shell: bash
+        run: |
+          echo "artifact-name=${{ inputs.name || github.event.repository.name }}" >> "$GITHUB_OUTPUT"
+
       - uses: gradle/actions/wrapper-validation@v6
       
       - name: Set up JDK
@@ -57,7 +66,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
         
-      - name: Build jar
+      - name: Build and publish jar
         run: ./gradlew ${{ inputs.task }}
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
@@ -66,11 +75,22 @@ jobs:
       - name: Upload to action
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ inputs.name || github.event.repository.name }}
+          name: ${{ steps.context.outputs.artifact-name }}
           path: ${{ inputs.path }}
           
+  publish:
+    name: Publish (GitHub release)
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: ${{ needs.build.outputs.artifact-name }}
+          path: ./artifacts
+
       - name: Upload to GitHub release
         uses: softprops/action-gh-release@v3
         if: github.ref_type == 'tag'
         with:
-          files: ${{ inputs.path }}
+          files: ./artifacts/**
