@@ -78,9 +78,8 @@ jobs:
     outputs:
       artifact-name: ${{ steps.context.outputs.artifact-name }}
     steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v6
       
       # Also update maven_publish.yml if changed!
       - name: Build context
@@ -105,7 +104,7 @@ jobs:
           echo "tool=$tool" >> "$GITHUB_OUTPUT"
       
           # Cache type (only valid ones)
-          if [[ "$tool" == "gradle" || "$tool" == "maven" || "$tool" == "sbt" ]]; then
+          if [[ "$tool" == "maven" || "$tool" == "sbt" ]]; then
             echo "cache=$tool" >> "$GITHUB_OUTPUT"
           else
             echo "cache=" >> "$GITHUB_OUTPUT"
@@ -142,15 +141,16 @@ jobs:
           # Artifact name (shared between upload in build job and download in publish job)
           echo "artifact-name=${{ inputs.name || github.event.repository.name }}" >> "$GITHUB_OUTPUT"
       
-      - uses: gradle/actions/wrapper-validation@v6
-        if: steps.context.outputs.tool == 'gradle'
-        
       - name: Set up JDK
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: ${{ inputs.java }}
           cache: ${{ steps.context.outputs.cache }}
+      
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6.2.0
+        if: steps.context.outputs.tool == 'gradle'
           
       - name: Grant execute permission for gradlew
         if: steps.context.outputs.tool == 'gradle'
@@ -166,6 +166,7 @@ jobs:
           
       - name: Upload to action
         uses: actions/upload-artifact@v7
+        if: success()
         with:
           name: ${{ steps.context.outputs.artifact-name }}
           path: ${{ steps.context.outputs.path }}
